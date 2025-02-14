@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Social Program Finder</h1>
+      <h1 className="text-2xl font-bold mb-6 text-black">Social Program Finder</h1>
       
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
