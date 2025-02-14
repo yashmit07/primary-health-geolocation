@@ -117,7 +117,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
           value={radius}
           onChange={(e) => setRadius(Number(e.target.value))}
           min="1"
-          max="25"
+          max="5000"
           step="1"
           className="mt-2 w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
           disabled={isLoading}

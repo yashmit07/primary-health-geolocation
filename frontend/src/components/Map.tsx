@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { SocialProgram } from '../types';
 
 interface MapProps {
   programs: SocialProgram[];
   userLocation: { lat: number; lng: number } | null;
+  selectedProgramId: number | null;
+  onProgramSelect: (id: number | null) => void;
 }
 
-export default function Map({ programs, userLocation }: MapProps) {
-  const [selectedProgram, setSelectedProgram] = useState<SocialProgram | null>(null);
+export default function Map({ programs, userLocation, selectedProgramId, onProgramSelect }: MapProps) {
   const [showUserInfo, setShowUserInfo] = useState(false);
 
   const center = userLocation || (programs[0]?.latitude 
@@ -16,13 +17,16 @@ export default function Map({ programs, userLocation }: MapProps) {
     : { lat: 40.7128, lng: -74.0060 }
   );
 
+  // Find the selected program
+  const selectedProgram = programs.find(p => p.id === selectedProgramId);
+
   return (
     <GoogleMap
       mapContainerClassName="w-full h-96 rounded-lg"
       center={center}
       zoom={12}
       onClick={() => {
-        setSelectedProgram(null);
+        onProgramSelect(null);
         setShowUserInfo(false);
       }}
     >
@@ -36,7 +40,7 @@ export default function Map({ programs, userLocation }: MapProps) {
               scaledSize: new google.maps.Size(50, 50),
             }}
             onClick={() => {
-              setSelectedProgram(null);
+              onProgramSelect(null);
               setShowUserInfo(true);
             }}
           />
@@ -63,12 +67,12 @@ export default function Map({ programs, userLocation }: MapProps) {
             scaledSize: new google.maps.Size(40, 40),
           }}
           onClick={() => {
-            setSelectedProgram(program);
+            onProgramSelect(program.id);
             setShowUserInfo(false);
           }}
         >
           {selectedProgram?.id === program.id && (
-            <InfoWindow onCloseClick={() => setSelectedProgram(null)}>
+            <InfoWindow onCloseClick={() => onProgramSelect(null)}>
               <div>
                 <h3 className="font-semibold text-black">{program.name}</h3>
                 <p className="text-sm text-gray-600">{program.programType}</p>
