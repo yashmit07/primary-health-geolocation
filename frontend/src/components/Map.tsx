@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, InfoWindow, MarkerF } from '@react-google-maps/api';  // Changed to MarkerF
 import { SocialProgram } from '../types';
 import styles from './Map.module.scss';
 
@@ -33,7 +33,7 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
       {/* User Location */}
       {userLocation && (
         <>
-          <Marker
+          <MarkerF
             position={userLocation}
             icon={{
               url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -59,7 +59,7 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
 
       {/* Program Markers */}
       {programs.map((program) => (
-        <Marker
+        <MarkerF
           key={program.id}
           position={{ lat: program.latitude, lng: program.longitude }}
           icon={{
@@ -87,7 +87,7 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
               </div>
             </InfoWindow>
           )}
-        </Marker>
+        </MarkerF>
       ))}
     </GoogleMap>
   );

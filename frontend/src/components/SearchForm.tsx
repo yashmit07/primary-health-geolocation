@@ -3,13 +3,13 @@ import { PROGRAM_TYPES } from '../types';
 import styles from './SearchForm.module.scss';
 
 interface SearchFormProps {
-  onSearch: (address: string, programTypes: string[], radiusMiles: number) => void;
+  onSearch: (address: string, programType: string | null, radiusMiles: number) => void;
   isLoading?: boolean;
 }
 
 export default function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
   const [address, setAddress] = useState('');
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedType, setSelectedType] = useState<string>('All Programs');
   const [radius, setRadius] = useState(5);
   const [isAddressSelected, setIsAddressSelected] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +35,8 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isAddressSelected) {
-      onSearch(address, selectedTypes, radius);
+      const programTypeToSend = selectedType === 'All Programs' ? null : selectedType;
+      onSearch(address, programTypeToSend, radius);
     }
   };
 
@@ -74,22 +75,16 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
       {/* Program Types */}
       <div>
         <label className={styles.inputLabel}>
-          Program Types (Optional)
+          Program Type
         </label>
         <div className={styles.programTypesGrid}>
           {PROGRAM_TYPES.map((type) => (
             <button
               key={type}
               type="button"
-              onClick={() => {
-                setSelectedTypes(prev => 
-                  prev.includes(type) 
-                    ? prev.filter(t => t !== type)
-                    : [...prev, type]
-                );
-              }}
+              onClick={() => setSelectedType(type === selectedType ? 'All Programs' : type)}
               className={`${styles.programTypeButton} ${
-                selectedTypes.includes(type) 
+                selectedType === type 
                   ? styles.selected 
                   : styles.unselected
               }`}

@@ -14,11 +14,13 @@ class SocialProgramController(
     @GetMapping("/search")
     fun searchPrograms(
         @RequestParam address: String,
-        @RequestParam radiusMiles: Double
+        @RequestParam radiusMiles: Double,
+        @RequestParam(required = false) programType: String?
     ): List<SocialProgram> {
         return socialProgramService.findNearbyPrograms(
             address,
-            radiusMiles
+            radiusMiles,
+            programType
         )
     }
 

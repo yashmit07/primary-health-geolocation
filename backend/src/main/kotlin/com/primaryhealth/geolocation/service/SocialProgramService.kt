@@ -10,7 +10,7 @@ class SocialProgramService(
     private val repository: SocialProgramRepository
 ) : GeolocationBase() {
     
-    fun findNearbyPrograms(address: String, radiusMiles: Double): List<SocialProgram> {
+    fun findNearbyPrograms(address: String, radiusMiles: Double, programType: String? = null): List<SocialProgram> {
         // Get the coordinates for the search address
         val searchCoords = geocodeAddress(address)
         
@@ -23,7 +23,7 @@ class SocialProgramService(
         
         // Get all programs in these cell ranges
         return cellRanges.flatMap { range ->
-            repository.findProgramsInRange(range.start, range.end)
+            repository.findProgramsInRange(range.start, range.end, programType?.uppercase())
         }.distinct()
     }
 

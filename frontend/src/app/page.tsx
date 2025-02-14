@@ -13,7 +13,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
 
-  const handleSearch = async (address: string, programTypes: string[], radiusMiles: number) => {
+  const handleSearch = async (address: string, programType: string | null, radiusMiles: number) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -27,7 +27,7 @@ export default function Home() {
           lng: location.lng()
         });
         
-        const foundPrograms = await searchPrograms(address, radiusMiles);
+        const foundPrograms = await searchPrograms(address, radiusMiles, programType || undefined);
         setPrograms(foundPrograms);
       }
     } catch (err) {

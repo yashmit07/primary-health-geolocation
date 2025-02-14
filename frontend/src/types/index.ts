@@ -7,4 +7,4 @@ export interface SocialProgram {
     longitude: number;
   }
   
-  export const PROGRAM_TYPES = ['Food', 'Housing', 'Childcare', 'Transportation', 'Disability'] as const;
+  export const PROGRAM_TYPES = ['All Programs', 'Food', 'Housing', 'Childcare', 'Transportation', 'Disability'] as const;
