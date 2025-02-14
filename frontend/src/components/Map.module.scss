@@ -1,0 +1,23 @@
+.mapContainer {
+    @apply w-full h-96 rounded-lg;
+  }
+  
+  .infoWindowContent {
+    @apply p-1;
+  }
+  
+  .userLocation {
+    @apply font-semibold;
+  }
+  
+  .programName {
+    @apply font-semibold text-black;
+  }
+  
+  .programType {
+    @apply text-sm text-gray-600;
+  }
+  
+  .programAddress {
+    @apply text-sm text-blue-600 hover:underline;
+  }

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { SocialProgram } from '../types';
+import styles from './Map.module.scss';
 
 interface MapProps {
   programs: SocialProgram[];
@@ -17,12 +18,11 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
     : { lat: 40.7128, lng: -74.0060 }
   );
 
-  // Find the selected program
   const selectedProgram = programs.find(p => p.id === selectedProgramId);
 
   return (
     <GoogleMap
-      mapContainerClassName="w-full h-96 rounded-lg"
+      mapContainerClassName={styles.mapContainer}
       center={center}
       zoom={12}
       onClick={() => {
@@ -49,8 +49,8 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
               position={userLocation}
               onCloseClick={() => setShowUserInfo(false)}
             >
-              <div className="p-1">
-                <p className="font-semibold">Your Location</p>
+              <div className={styles.infoWindowContent}>
+                <p className={styles.userLocation}>Your Location</p>
               </div>
             </InfoWindow>
           )}
@@ -74,13 +74,13 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
           {selectedProgram?.id === program.id && (
             <InfoWindow onCloseClick={() => onProgramSelect(null)}>
               <div>
-                <h3 className="font-semibold text-black">{program.name}</h3>
-                <p className="text-sm text-gray-600">{program.programType}</p>
+                <h3 className={styles.programName}>{program.name}</h3>
+                <p className={styles.programType}>{program.programType}</p>
                 <a 
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
+                  className={styles.programAddress}
                 >
                   {program.address}
                 </a>

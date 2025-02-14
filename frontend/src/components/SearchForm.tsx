@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PROGRAM_TYPES } from '../types';
+import styles from './SearchForm.module.scss';
 
 interface SearchFormProps {
   onSearch: (address: string, programTypes: string[], radiusMiles: number) => void;
@@ -29,10 +30,6 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
         setIsAddressSelected(true);
       }
     });
-
-    return () => {
-      // Cleanup if needed
-    };
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,14 +41,14 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
 
   const handleAddressInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
-    setIsAddressSelected(false); // Reset the selection flag when user types
+    setIsAddressSelected(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg shadow">
+    <form onSubmit={handleSubmit} className={styles.formContainer}>
       {/* Address Input */}
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="address" className={styles.inputLabel}>
           Address
         </label>
         <div className="relative">
@@ -61,13 +58,13 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
             id="address"
             value={address}
             onChange={handleAddressInput}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-black shadow-sm"
+            className={styles.inputField}
             placeholder="Search and select an address"
             required
             disabled={isLoading}
           />
           {!isAddressSelected && address && (
-            <div className="absolute inset-x-0 bottom-0 transform translate-y-full bg-yellow-50 border border-yellow-200 rounded-md p-2 text-sm text-yellow-700 mt-1">
+            <div className={styles.validationMessage}>
               Please select an address from the suggestions
             </div>
           )}
@@ -76,10 +73,10 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
 
       {/* Program Types */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label className={styles.inputLabel}>
           Program Types (Optional)
         </label>
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className={styles.programTypesGrid}>
           {PROGRAM_TYPES.map((type) => (
             <button
               key={type}
@@ -91,10 +88,10 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
                     : [...prev, type]
                 );
               }}
-              className={`p-2 text-sm rounded border ${
-                selectedTypes.includes(type)
-                  ? 'bg-blue-50 border-blue-300 text-blue-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              className={`${styles.programTypeButton} ${
+                selectedTypes.includes(type) 
+                  ? styles.selected 
+                  : styles.unselected
               }`}
             >
               {type}
@@ -105,11 +102,11 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
 
       {/* Radius Slider */}
       <div>
-        <div className="flex justify-between items-center">
-          <label htmlFor="radius" className="block text-sm font-medium text-gray-700">
+        <div className={styles.radiusContainer}>
+          <label htmlFor="radius" className={styles.inputLabel}>
             Search Radius
           </label>
-          <span className="text-sm text-gray-600">{radius} miles</span>
+          <span className={styles.radiusValue}>{radius} miles</span>
         </div>
         <input
           type="range"
@@ -119,7 +116,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
           min="1"
           max="25"
           step="1"
-          className="mt-2 w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          className={styles.radiusSlider}
           disabled={isLoading}
         />
       </div>
@@ -128,10 +125,10 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
       <button
         type="submit"
         disabled={isLoading || !isAddressSelected}
-        className={`w-full py-2 px-4 rounded-md text-white ${
+        className={`${styles.submitButton} ${
           isLoading || !isAddressSelected 
-            ? 'bg-blue-300 cursor-not-allowed' 
-            : 'bg-blue-600 hover:bg-blue-700'
+            ? styles.disabled 
+            : styles.enabled
         }`}
       >
         {isLoading ? 'Searching...' : 'Search Programs'}
