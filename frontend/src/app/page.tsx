@@ -9,14 +9,28 @@ import { SocialProgram } from '../types';
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [programs, setPrograms] = useState<SocialProgram[]>([]);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (address: string, programTypes: string[], radiusMiles: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const foundPrograms = await searchPrograms(address, radiusMiles);
-      setPrograms(foundPrograms);
+      // First geocode the address
+      const geocoder = new google.maps.Geocoder();
+      const geocodeResult = await geocoder.geocode({ address });
+      
+      if (geocodeResult.results[0]?.geometry?.location) {
+        const location = geocodeResult.results[0].geometry.location;
+        setUserLocation({
+          lat: location.lat(),
+          lng: location.lng()
+        });
+        
+        // Then search for programs
+        const foundPrograms = await searchPrograms(address, radiusMiles);
+        setPrograms(foundPrograms);
+      }
     } catch (err) {
       setError('An error occurred while searching. Please try again.');
       console.error('Search error:', err);
@@ -40,14 +54,14 @@ export default function Home() {
           <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
           {programs.length > 0 && (
-            <div className="mt-4 p-4 bg-white rounded-lg shadow">
+            <div className="mt-4 p-4 bg-white rounded-lg shadow text-black">
               <h2 className="font-medium">Found {programs.length} Programs</h2>
             </div>
           )}
         </div>
         
         <div className="md:col-span-2">
-          <Map programs={programs} />
+          <Map programs={programs} userLocation={userLocation} />
         </div>
       </div>
     </main>
