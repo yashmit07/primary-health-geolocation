@@ -9,5 +9,8 @@
     "react-dom": "^18.2.0",
     "react-map-gl": "^8.0.1",
     "sass": "^1.85.0"
+  },
+  "devDependencies": {
+    "@types/next": "^9.0.0"
   }
 }
