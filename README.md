@@ -41,7 +41,7 @@ CREATE DATABASE primary_health;
 
 2. Run the schema migration:
 ```sql
-psql primary_health < src/main/resources/db/migration/create_tables.sql
+psql primary_health < src/main/resources/db/migration/create_social_programs_tables_V2.sql
 ```
 
 ### Backend Setup
