@@ -13,30 +13,34 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
 
-  const handleSearch = async (address: string, programType: string | null, radiusMiles: number) => {
+  const handleSearch = async (address: string, typeId: number | null, radiusMiles: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const geocoder = new google.maps.Geocoder();
-      const geocodeResult = await geocoder.geocode({ address });
-      
-      if (geocodeResult.results[0]?.geometry?.location) {
-        const location = geocodeResult.results[0].geometry.location;
-        setUserLocation({
-          lat: location.lat(),
-          lng: location.lng()
-        });
+        const geocoder = new google.maps.Geocoder();
+        const geocodeResult = await geocoder.geocode({ address });
         
-        const foundPrograms = await searchPrograms(address, radiusMiles, programType || undefined);
-        setPrograms(foundPrograms);
-      }
+        if (geocodeResult.results[0]?.geometry?.location) {
+            const location = geocodeResult.results[0].geometry.location;
+            setUserLocation({
+                lat: location.lat(),
+                lng: location.lng()
+            });
+            
+            const foundPrograms = await searchPrograms(
+                address, 
+                radiusMiles, 
+                typeId || undefined
+            );
+            setPrograms(foundPrograms);
+        }
     } catch (err) {
-      setError('An error occurred while searching. Please try again.');
-      console.error('Search error:', err);
+        setError('An error occurred while searching. Please try again.');
+        console.error('Search error:', err);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
 
   return (
     <main className="container mx-auto p-4">
@@ -58,27 +62,31 @@ export default function Home() {
                 <h2 className="font-medium text-black">Found {programs.length} Programs</h2>
               </div>
               <div className="max-h-96 overflow-y-auto">
-                {programs.map((program) => (
+              {programs.map((program) => (
                   <div 
-                    key={program.id}
-                    className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
-                      selectedProgram === program.id ? 'bg-blue-50' : ''
-                    }`}
-                    onClick={() => setSelectedProgram(program.id)}
+                      key={program.id}
+                      className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
+                          selectedProgram === program.id ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => setSelectedProgram(program.id)}
                   >
-                    <h3 className="font-medium text-black">{program.name}</h3>
-                    <p className="text-sm text-gray-600">{program.programType}</p>
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.address)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline mt-1 block"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {program.address}
-                    </a>
+                      <h3 className="font-medium text-black">{program.name}</h3>
+                      <p className="text-sm text-gray-600">
+                          {program.types && program.types.length > 0 
+                              ? program.types.join(', ')
+                              : 'No types specified'}
+                      </p>
+                      <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:underline mt-1 block"
+                          onClick={(e) => e.stopPropagation()}
+                      >
+                          {program.address}
+                      </a>
                   </div>
-                ))}
+              ))}
               </div>
             </div>
           )}

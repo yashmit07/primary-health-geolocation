@@ -72,20 +72,24 @@ export default function Map({ programs, userLocation, selectedProgramId, onProgr
           }}
         >
           {selectedProgram?.id === program.id && (
-            <InfoWindow onCloseClick={() => onProgramSelect(null)}>
-              <div>
-                <h3 className={styles.programName}>{program.name}</h3>
-                <p className={styles.programType}>{program.programType}</p>
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.programAddress}
-                >
-                  {program.address}
-                </a>
-              </div>
-            </InfoWindow>
+              <InfoWindow onCloseClick={() => onProgramSelect(null)}>
+                  <div>
+                      <h3 className={styles.programName}>{program.name}</h3>
+                      <p className={styles.programType}>
+                          {program.types && program.types.length > 0 
+                            ? program.types.join(', ')
+                            : 'No types specified'}
+                      </p>
+                      <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.programAddress}
+                      >
+                          {program.address}
+                      </a>
+                  </div>
+              </InfoWindow>
           )}
         </MarkerF>
       ))}
