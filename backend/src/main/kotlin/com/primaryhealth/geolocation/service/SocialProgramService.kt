@@ -1,44 +1,74 @@
 package com.primaryhealth.geolocation.service
 
 import com.primaryhealth.geolocation.base.GeolocationBase
-import com.primaryhealth.geolocation.model.SocialProgram
-import com.primaryhealth.geolocation.repository.SocialProgramRepository
+import com.primaryhealth.geolocation.dto.ProgramResponse
+import com.primaryhealth.geolocation.dto.AddProgramRequest
+import com.primaryhealth.geolocation.model.*
+import com.primaryhealth.geolocation.repository.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class SocialProgramService(
-    private val repository: SocialProgramRepository
+    private val programRepository: SocialProgramRepository,
+    private val typeRepository: ProgramTypeRepository,
+    private val typeRefRepository: ProgramTypeRefRepository
 ) : GeolocationBase() {
     
-    fun findNearbyPrograms(address: String, radiusMiles: Double, programType: String? = null): List<SocialProgram> {
-        // Get the coordinates for the search address
+    fun getAllProgramTypes(): List<ProgramType> = typeRepository.getAllTypes()
+
+    fun findNearbyPrograms(address: String, radiusMiles: Double, typeId: Int? = null): List<ProgramResponse> {
         val searchCoords = geocodeAddress(address)
-        
-        // Get cell ranges that cover our search area
         val cellRanges = getCellIdRangesForRadius(
             searchCoords.latitude, 
             searchCoords.longitude, 
             radiusMiles
         )
         
-        // Get all programs in these cell ranges
-        return cellRanges.flatMap { range ->
-            repository.findProgramsInRange(range.start, range.end, programType?.uppercase())
+        val programs = cellRanges.flatMap { range ->
+            programRepository.findProgramsInRange(range.start, range.end, typeId)
         }.distinct()
+
+        return programs.map { program ->
+            val types = typeRefRepository.findByProgram(program).map { ref ->
+                ref.programType.typeName
+            }
+            ProgramResponse(
+                id = program.id!!,
+                name = program.name,
+                address = program.address,
+                latitude = program.latitude,
+                longitude = program.longitude,
+                types = types
+            )
+        }
     }
 
-    fun addProgram(name: String, programType: String, address: String): SocialProgram {
-        val coords = geocodeAddress(address)
+    @Transactional
+    fun addProgram(request: AddProgramRequest): SocialProgram {
+        val coords = geocodeAddress(request.address)
         val cellId = latLngToCellId(coords.latitude, coords.longitude)
         
         val program = SocialProgram(
-            name = name,
-            programType = programType,
-            address = address,
+            name = request.name,
+            address = request.address,
             latitude = coords.latitude,
             longitude = coords.longitude,
             cellId = cellId
         )
-        return repository.save(program)
+        val savedProgram = programRepository.save(program)
+        
+        // Explicit type for forEach to resolve ambiguity
+        request.typeIds.forEach { typeId: Int ->
+            typeRepository.findById(typeId).ifPresent { programType ->
+                val typeRef = ProgramTypeRef(
+                    program = savedProgram,
+                    programType = programType
+                )
+                typeRefRepository.save(typeRef)
+            }
+        }
+        
+        return savedProgram
     }
 }

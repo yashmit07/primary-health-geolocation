@@ -1,89 +1,126 @@
 package com.primaryhealth.geolocation.service
 
-import org.junit.jupiter.api.Test
+import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
-import org.mockito.Mockito.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-import com.primaryhealth.geolocation.repository.SocialProgramRepository
-import org.mockito.ArgumentMatchers.anyLong
+import com.primaryhealth.geolocation.repository.*
+import com.primaryhealth.geolocation.model.*
+import com.primaryhealth.geolocation.dto.*
 import com.primaryhealth.geolocation.base.GeocodingResult
 import com.primaryhealth.geolocation.base.CellIdRange
-import com.primaryhealth.geolocation.model.SocialProgram
-import org.mockito.ArgumentMatchers.any
+import java.util.Optional
 
 class SocialProgramServiceTest {
-    @Mock
-    private lateinit var repository: SocialProgramRepository
-
+    private val programRepository = mockk<SocialProgramRepository>()
+    private val typeRepository = mockk<ProgramTypeRepository>()
+    private val typeRefRepository = mockk<ProgramTypeRefRepository>()
     private lateinit var service: TestSocialProgramService
 
-    // Test-specific subclass that overrides GeolocationBase methods
-    private class TestSocialProgramService(repository: SocialProgramRepository) : SocialProgramService(repository) {
-        override fun geocodeAddress(address: String): GeocodingResult {
-            return GeocodingResult(40.7128, -74.0060)  // NYC coordinates
-        }
-
-        override fun latLngToCellId(lat: Double, lng: Double): Long {
-            return 123456789L
-        }
-
-        override fun getCellIdRangesForRadius(lat: Double, lng: Double, radiusMiles: Double): List<CellIdRange> {
-            return listOf(CellIdRange(123000000L, 123999999L))
-        }
+    private class TestSocialProgramService(
+        programRepository: SocialProgramRepository,
+        typeRepository: ProgramTypeRepository,
+        typeRefRepository: ProgramTypeRefRepository
+    ) : SocialProgramService(programRepository, typeRepository, typeRefRepository) {
+        override fun geocodeAddress(address: String) = GeocodingResult(40.7128, -74.0060)
+        override fun latLngToCellId(lat: Double, lng: Double) = 123456789L
+        override fun getCellIdRangesForRadius(lat: Double, lng: Double, radiusMiles: Double) = 
+            listOf(CellIdRange(123000000L, 123999999L))
     }
 
     @BeforeEach
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        service = TestSocialProgramService(repository)
+        clearAllMocks()
+        service = TestSocialProgramService(programRepository, typeRepository, typeRefRepository)
     }
 
     @Test
-    fun `test add program`() {
-        val expectedProgram = SocialProgram(
+    fun `should successfully find nearby programs when type is specified`() {
+        // Setup
+        val program = SocialProgram(
             id = 1,
             name = "Test Program",
-            programType = "FOOD",
             address = "123 Test St",
             latitude = 40.7128,
             longitude = -74.0060,
             cellId = 123456789L
         )
-        
-        `when`(repository.save(any())).thenReturn(expectedProgram)
-        
-        val program = service.addProgram("Test Program", "FOOD", "123 Test St")
-        
-        assertNotNull(program)
-        assertEquals("Test Program", program.name)
-        assertEquals("FOOD", program.programType)
-        assertEquals("123 Test St", program.address)
-        assertEquals(40.7128, program.latitude)
-        assertEquals(-74.0060, program.longitude)
-        assertEquals(123456789L, program.cellId)
-    }
 
-    @Test
-    fun `test find nearby programs`() {
-        val testProgram = SocialProgram(
+        val programType = ProgramType(1, "Food")
+        val typeRef = ProgramTypeRef(
             id = 1,
-            name = "Test Program",
-            programType = "FOOD",
-            address = "123 Test St",
-            latitude = 40.7128,
-            longitude = -74.0060,
-            cellId = 123456789L
+            program = program,
+            programType = programType
         )
         
-        `when`(repository.findProgramsInRange(anyLong(), anyLong()))
-            .thenReturn(listOf(testProgram))
+        every { 
+            programRepository.findProgramsInRange(any(), any(), any()) 
+        } returns listOf(program)
+
+        every {
+            typeRefRepository.findByProgram(any())
+        } returns listOf(typeRef)
         
-        val results = service.findNearbyPrograms("123 Test St", 5.0)
+        // Execute
+        val results = service.findNearbyPrograms("123 Test St", 5.0, 1)
         
-        assertNotNull(results)
+        // Verify
         assertFalse(results.isEmpty())
-        assertEquals(testProgram, results[0])
+        assertEquals("Test Program", results.first().name)
+        assertEquals(listOf("Food"), results.first().types)
+        verify { programRepository.findProgramsInRange(any(), any(), any()) }
+        verify { typeRefRepository.findByProgram(any()) }
+    }
+
+    @Test
+    fun `should successfully add program with types`() {
+        // Setup
+        val request = AddProgramRequest(
+            name = "Test Program",
+            address = "123 Test St",
+            typeIds = listOf(1)
+        )
+        
+        val program = SocialProgram(
+            id = 1,
+            name = request.name,
+            address = request.address,
+            latitude = 40.7128,
+            longitude = -74.0060,
+            cellId = 123456789L
+        )
+
+        val programType = ProgramType(1, "Food")
+        
+        every { programRepository.save(any()) } returns program
+        every { typeRepository.findById(1) } returns Optional.of(programType)
+        every { typeRefRepository.save(any()) } returns mockk()
+        
+        // Execute
+        val result = service.addProgram(request)
+        
+        // Verify
+        assertNotNull(result)
+        assertEquals(request.name, result.name)
+        verify { typeRefRepository.save(any()) }
+    }
+
+    @Test
+    fun `should return all program types`() {
+        // Setup
+        val types = listOf(
+            ProgramType(1, "Food"),
+            ProgramType(2, "Housing")
+        )
+
+        every { typeRepository.getAllTypes() } returns types
+
+        // Execute
+        val results = service.getAllProgramTypes()
+
+        // Verify
+        assertEquals(2, results.size)
+        assertEquals("Food", results[0].typeName)
+        assertEquals("Housing", results[1].typeName)
     }
 }

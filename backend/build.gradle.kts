@@ -29,8 +29,14 @@ dependencies {
 	implementation("com.google.geometry:s2-geometry-library:HEAD-SNAPSHOT") // For S2 geometry
     implementation("com.google.maps:google-maps-services:2.1.2") // For geocoding
 	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(module = "mockito-core")
+    }
+	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.mockito:mockito-core:5.2.0")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("com.ninja-squad:springmockk:4.0.2") // Better Kotlin support for Spring Boot testing
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

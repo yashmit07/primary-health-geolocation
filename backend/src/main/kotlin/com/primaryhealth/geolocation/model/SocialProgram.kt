@@ -8,7 +8,6 @@ data class SocialProgram(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     val name: String,
-    val programType: String,
     val address: String,
     val latitude: Double,
     val longitude: Double,
