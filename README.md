@@ -50,7 +50,7 @@ This service helps match patients with social programs based on their location a
    ```
 
 3. **Backend Configuration**
-   - Copy `application.properties.example` to `application.properties`
+   - Update `application.properties`
    - Add your Google Maps API key and database credentials
    ```properties
    google.maps.api.key=your_api_key_here
@@ -60,7 +60,7 @@ This service helps match patients with social programs based on their location a
    ```
 
 4. **Frontend Configuration**
-   - Copy `.env.local.example` to `.env.local`
+   - Create `.env.local`
    - Add your Google Maps API key
    ```
    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
