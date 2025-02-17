@@ -4,7 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Social Program Finder",
+  title: "Primary Health",
   description: "Find social programs near you",
 };
 
