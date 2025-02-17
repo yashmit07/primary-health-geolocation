@@ -1,0 +1,35 @@
+.container {
+    @apply bg-white rounded-lg shadow;
+  }
+  
+  .header {
+    @apply p-4 border-b;
+  }
+  
+  .headerTitle {
+    @apply font-medium text-black;
+  }
+  
+  .list {
+    @apply max-h-[500px] overflow-y-auto;
+  }
+  
+  .listItem {
+    @apply p-4 border-b hover:bg-gray-50 cursor-pointer;
+  
+    &.selected {
+      @apply bg-blue-50;
+    }
+  }
+  
+  .programName {
+    @apply font-medium text-black;
+  }
+  
+  .programTypes {
+    @apply text-sm text-gray-600;
+  }
+  
+  .programAddress {
+    @apply text-sm text-blue-600 hover:underline mt-1 block;
+  }
