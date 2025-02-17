@@ -17,7 +17,7 @@ java {
 
 repositories {
 	mavenCentral()
-	mavenLocal() // For S2 geometry
+	mavenLocal()
 }
 
 dependencies {
@@ -26,7 +26,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("com.google.geometry:s2-geometry-library:HEAD-SNAPSHOT") // For S2 geometry
+	implementation("com.google.geometry:s2-geometry-library:HEAD-SNAPSHOT")
     implementation("com.google.maps:google-maps-services:2.1.2") // For geocoding
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
