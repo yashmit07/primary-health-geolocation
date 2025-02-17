@@ -3,8 +3,10 @@ package com.primaryhealth.geolocation.service
 import com.primaryhealth.geolocation.base.GeolocationBase
 import com.primaryhealth.geolocation.dto.ProgramResponse
 import com.primaryhealth.geolocation.dto.AddProgramRequest
+import com.primaryhealth.geolocation.exception.ServiceException
 import com.primaryhealth.geolocation.model.*
 import com.primaryhealth.geolocation.repository.*
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,6 +17,8 @@ class SocialProgramService(
     private val typeRefRepository: ProgramTypeRefRepository
 ) : GeolocationBase() {
     
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun getAllProgramTypes(): List<ProgramType> = typeRepository.getAllTypes()
 
     fun findNearbyPrograms(address: String, radiusMiles: Double, typeId: Int? = null): List<ProgramResponse> {
