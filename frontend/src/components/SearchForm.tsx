@@ -25,17 +25,17 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
     useEffect(() => {
+        const loadProgramTypes = async () => {
+            try {
+                const types = await getProgramTypes();
+                setProgramTypes(types);
+            } catch (error) {
+                console.error('Error loading program types:', error);
+            }
+        };
+
         loadProgramTypes();
     }, []);
-
-    const loadProgramTypes = async () => {
-        try {
-            const types = await getProgramTypes();
-            setProgramTypes(types);
-        } catch (error) {
-            console.error('Error loading program types:', error);
-        }
-    };
 
     useEffect(() => {
         if (!inputRef.current || !window.google) return;
