@@ -38,7 +38,39 @@ This service helps match patients with social programs based on their location a
    - Node.js 18+
    - Google Maps API key
 
-2. **Database Setup**
+2. **S2 Geometry Library Setup**
+   ```bash
+   # Clone the S2 geometry library
+   git clone https://github.com/google/s2-geometry-library-java.git
+   cd s2-geometry-library-java
+
+   # Build and install to local Maven repository
+   mvn clean install
+   ```
+
+   The backend's `build.gradle.kts` is already configured to use the local Maven repository and S2 dependency:
+   ```kotlin
+   repositories {
+       mavenCentral()
+       mavenLocal()  // Required for S2 geometry library
+   }
+
+   dependencies {
+       implementation("com.google.geometry:s2-geometry-library:HEAD-SNAPSHOT")
+   }
+   ```
+
+   > **Note**: If you encounter Guava dependency issues during the build, you may need to edit `s2-geometry-library-java/library/pom.xml` to update the Guava version. Look for the Guava dependency and ensure it's using a compatible version:
+   > ```xml
+   > <dependency>
+   >     <groupId>com.google.guava</groupId>
+   >     <artifactId>guava</artifactId>
+   >     <version>31.1-jre</version>
+   > </dependency>
+   > ```
+   > After updating the version, run `mvn clean install` again.
+
+3. **Database Setup**
    ```bash
    # Create database
    createdb primary_health
@@ -48,7 +80,7 @@ This service helps match patients with social programs based on their location a
    psql primary_health < backend/src/main/resources/db/migration/create_social_programs_tables_V3.sql
    ```
 
-3. **Backend Configuration**
+4. **Backend Configuration**
    - Update `application.properties`
    - Add your Google Maps API key and database credentials
    ```properties
@@ -58,7 +90,7 @@ This service helps match patients with social programs based on their location a
    spring.datasource.password=your_password
    ```
 
-4. **Frontend Configuration**
+5. **Frontend Configuration**
    - Create `.env.local`
    - Add your Google Maps API key
    ```
