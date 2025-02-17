@@ -27,7 +27,6 @@ This service helps match patients with social programs based on their location a
 ### Frontend
 - Next.js 14 with React 18
 - Google Maps JavaScript API
-- Tremor for UI components
 - TypeScript for type safety
 - Tailwind CSS for styling
 
