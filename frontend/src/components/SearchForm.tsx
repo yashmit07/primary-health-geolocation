@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProgramType } from '../types';
-import { getProgramTypes } from '../utils/api';
-import styles from './SearchForm.module.scss';
+import { ProgramType } from '@/types';
+import { getProgramTypes } from '@/utils/api';
 
 interface SearchFormProps {
     onSearch: (address: string, typeId: number | null, radiusMiles: number) => void;
@@ -13,7 +12,7 @@ const RADIUS_OPTIONS = [
     { value: 5, label: '5 miles' },
     { value: 10, label: '10 miles' },
     { value: 20, label: '20 miles' }
-];
+] as const;
 
 export default function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
     const [address, setAddress] = useState('');
@@ -25,16 +24,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
     useEffect(() => {
-        const loadProgramTypes = async () => {
-            try {
-                const types = await getProgramTypes();
-                setProgramTypes(types);
-            } catch (error) {
-                console.error('Error loading program types:', error);
-            }
-        };
-
-        loadProgramTypes();
+        getProgramTypes().then(setProgramTypes).catch(console.error);
     }, []);
 
     useEffect(() => {
@@ -42,7 +32,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
 
         autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
             componentRestrictions: { country: 'us' },
-            fields: ['formatted_address', 'geometry'],
+            fields: ['formatted_address'],
             types: ['address']
         });
 
@@ -76,10 +66,13 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
         setIsAddressSelected(false);
     };
 
+    const inputStyles = "w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black";
+    const labelStyles = "block text-sm font-medium text-gray-700 mb-1";
+
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow">
             <div className="md:col-span-2">
-                <label htmlFor="address" className={styles.label}>
+                <label htmlFor="address" className={labelStyles}>
                     Address
                 </label>
                 <input
@@ -88,27 +81,27 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
                     id="address"
                     value={address}
                     onChange={handleAddressInput}
-                    className={styles.input}
+                    className={inputStyles}
                     placeholder="Search and select an address"
                     required
                     disabled={isLoading}
                 />
                 {!isAddressSelected && address && (
-                    <p className={styles.hint}>
+                    <p className="mt-1 text-sm text-gray-500">
                         Please select an address from the suggestions
                     </p>
                 )}
             </div>
 
             <div>
-                <label htmlFor="programType" className={styles.label}>
+                <label htmlFor="programType" className={labelStyles}>
                     Program Type
                 </label>
                 <select
                     id="programType"
-                    value={selectedTypeId || ''}
+                    value={selectedTypeId ?? ''}
                     onChange={(e) => setSelectedTypeId(e.target.value ? Number(e.target.value) : null)}
-                    className={styles.input}
+                    className={inputStyles}
                     disabled={isLoading}
                 >
                     <option value="">All Programs</option>
@@ -121,7 +114,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
             </div>
 
             <div>
-                <label htmlFor="radius" className={styles.label}>
+                <label htmlFor="radius" className={labelStyles}>
                     Search Radius
                 </label>
                 <div className="flex gap-2">
@@ -129,7 +122,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
                         id="radius"
                         value={radius}
                         onChange={(e) => setRadius(Number(e.target.value))}
-                        className={styles.input}
+                        className={inputStyles}
                         disabled={isLoading}
                     >
                         {RADIUS_OPTIONS.map((option) => (
@@ -142,7 +135,7 @@ export default function SearchForm({ onSearch, isLoading = false }: SearchFormPr
                     <button
                         type="submit"
                         disabled={isLoading || !isAddressSelected}
-                        className={styles.searchButton}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                         {isLoading ? 'Searching...' : 'Search'}
                     </button>
