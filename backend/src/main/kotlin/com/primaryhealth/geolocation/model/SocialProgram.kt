@@ -1,5 +1,6 @@
 package com.primaryhealth.geolocation.model
 
+import java.time.LocalDateTime
 import jakarta.persistence.*
 
 @Entity
@@ -12,10 +13,7 @@ import jakarta.persistence.*
         )
     ],
     indexes = [
-        Index(
-            name = "idx_social_programs_cell_id",
-            columnList = "cellId"
-        )
+        Index(name = "idx_social_programs_cell_id", columnList = "cellId")
     ]
 )
 data class SocialProgram(
@@ -25,5 +23,7 @@ data class SocialProgram(
     val address: String,
     val latitude: Double,
     val longitude: Double,
-    val cellId: Long
+    val cellId: Long,
+    @Column(nullable = false, updatable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now()
 )
