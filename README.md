@@ -81,7 +81,7 @@ This service helps match patients with social programs based on their location a
    ```
 
 4. **Backend Configuration**
-   - Update `application.properties`
+   - Copy `src/main/resources/application.properties.template` to `src/main/resources/application.properties`
    - Add your Google Maps API key and database credentials
    ```properties
    google.maps.api.key=your_api_key_here
