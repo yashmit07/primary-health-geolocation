@@ -68,7 +68,6 @@ class SocialProgramService(
             )
             val savedProgram = programRepository.save(program)
             
-            // Explicit type for forEach to resolve ambiguity
             request.typeIds.forEach { typeId: Int ->
                 typeRepository.findById(typeId).ifPresent { programType ->
                     val typeRef = ProgramTypeRef(

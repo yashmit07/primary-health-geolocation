@@ -36,7 +36,7 @@ abstract class GeolocationBase {
         }
     }
 
-    // Convert lat/lng to cell ID at our standard precision level
+    // Convert lat/lng to cell ID at level 13 precision level
     internal open fun latLngToCellId(lat: Double, lng: Double): Long {
         return S2CellId.fromLatLng(S2LatLng.fromDegrees(lat, lng))
             .parent(STORAGE_CELL_LEVEL)
@@ -50,7 +50,7 @@ abstract class GeolocationBase {
         val radiusRadians = radiusMiles / 3959.0  // Earth's radius in miles
         val cap = S2Cap.fromAxisAngle(center.toPoint(), S1Angle.radians(radiusRadians))
         
-        // Calculate appropriate max level based on radius
+        // Calculating max level based on radius
         // Smaller radius = higher level (more precise cells)
         val maxLevel = when {
             radiusMiles <= 1 -> STORAGE_CELL_LEVEL     // Very small radius, use precise cells
@@ -59,10 +59,10 @@ abstract class GeolocationBase {
             else -> STORAGE_CELL_LEVEL - 3              // ~4.8km cells
         }
         
-        // Create coverer with just the essential parameters
+        // Create coverer with select parameters
         val coverer = S2RegionCoverer.builder()
             .setMaxLevel(maxLevel)
-            .setMaxCells(MAX_CELLS)  // Performance tuning parameter
+            .setMaxCells(MAX_CELLS)  // Max number of cells to cover cap, Note: default is 8
             .build()
 
         // Get cell ranges covering this cap
